@@ -1,7 +1,24 @@
---AQUÍ IRÍAN LAS FUNCIONES--
---ENUNCIOADO--
---El frente popular de Judea quiere ganar votos para las proximas elecciones. Nos ha encargado que en 
---LUEGO PONEMOS EL LORE--
---El programa actualiza los saldos de los clientes dependiendo si son personas (diferenciando los >65 años) u organizaciones (PYMES, grandes empresas).--
---Dependiendo de su condición, se actulaizan los saldos correspondeintemente.--
---La función devolvería varios registros indicando el código de cliente, su sucursal, su saldo antes y después del cambio y el tipo de persona u organización.--
+/*
+SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
+     - David García Guirado
+     - Jorge García Marín
+     - Agustín Prieto Páez
+     - Jesús Sanz Alonso
+     - Antonio Tendero Beltrán
+*/
+
+-- Actualizar los saldos dependiendo del tipo (y subtipo) de Cliente
+CREATE OR REPLACE FUNCTION actualizar_saldo(curs REFCURSOR, subtipo varchar(10))
+RETURNS VOID AS $$
+BEGIN
+    CASE subtipo
+        WHEN 'p_menor' THEN
+            RAISE NOTICE 'Persona Menor de 65 años';
+        WHEN 'p_mayor' THEN
+            RAISE NOTICE 'Persona Mayor de 65 años';
+        WHEN 'o_pyme' THEN
+            RAISE NOTICE 'Organización PYME';
+        WHEN 'o_gran' THEN
+            RAISE NOTICE 'Organización Gran Empresa';
+END
+$$ LANGUAGE plpgsql;
