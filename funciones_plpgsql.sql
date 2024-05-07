@@ -7,10 +7,6 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
      - Antonio Tendero Beltrán
 */
 
-/*
-Doble bucle que gestiona el tipo de cliente y su actualizacion llamando a las otras 2 funciones, para cada sucursal,
-para cada uno de sus clientes se actualiza su saldo dependiendo de su subtipo, al final devuelve un informe en forma de setof text de todas las actualizaciones
-*/
 CREATE OR REPLACE FUNCTION control() RETURNS SETOF TEXT AS $$ 
 DECLARE
 cursuc CURSOR FOR SELECT su_id FROM SUCURSAL;
@@ -32,8 +28,8 @@ RETURN;
 END $$ LANGUAGE plpgsql;
 
 
---Obtiene el subtipo del cliente, si es una organizacion obtenemos su tipo y si es una persona los dividimos en grupos (mayor y menor) segun su edad actual--
-CREATE OR REPLACE FUNCTION checksubtipo(codc CLIENTE.codc%TYPE, OUT param varchar(20)) RETURNS record AS $$
+
+CREATE OR REPLACE FUNCTION checksubtipo(codc CLIENTE.codc%TYPE, OUT param varchar(20)) AS $$
 DECLARE 
 mycod CLIENTE.codc%TYPE;
 org boolean NOT NULL:=1;
@@ -57,9 +53,9 @@ END
 $$ LANGUAGE plpgsql;
 
 
--- Actualizar los saldos dependiendo del tipo (y subtipo) de Cliente--
-CREATE OR REPLACE FUNCTION actualizar_saldo(curs refcursor, subtipo varchar(20))
-RETURNS VOID AS $$
+-- Actualizar los saldos dependiendo del tipo (y subtipo) de Cliente
+CREATE OR REPLACE FUNCTION actualizar_saldo(curs refcursor, subtipo varchar(20), OUT saldo_ant CUENTA.saldo_medio%TYPE, OUT saldo_nuevo CUENTA.saldo_medio%TYPE)
+RETURNS RECORD AS $$
 BEGIN
     CASE subtipo
         WHEN 'p_menor' THEN
@@ -72,7 +68,6 @@ BEGIN
             RAISE NOTICE 'Organización Gran Empresa';
 END
 $$ LANGUAGE plpgsql;
-
 
 
 
