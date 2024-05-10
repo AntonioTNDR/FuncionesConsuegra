@@ -18,8 +18,8 @@ fila text;
 BEGIN
 	FOR rec1 IN cursus LOOP 
 		FOR rec2 IN curcli(rec1.su_id) LOOP
-			version:=isorg(rec2.codc); 
-			recf1:=actualizar(curcli,version); --Devuelva el saldo anterior y el saldo actualizado y usa la iteracion del cursor para actualizar la cuenta dependiendo de version 
+			version:=checkSubtipo(rec2.codc); 
+			recf1:=actualizar_saldo(rec2,version); --Devuelva el saldo anterior y el saldo actualizado y usa la iteracion del cursor para actualizar la cuenta dependiendo de version 
 			fila:='Sucursal:'||rec1.su_id||', cliente:' || rec2.codc ||', saldo anterior:'|| recf1.saldo_ant ||', saldo nuevo:'||recf1.saldo_nuevo; 
 			RETURN NEXT fila;
 		END LOOP;
@@ -29,23 +29,28 @@ END $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION checksubtipo(codc CLIENTE.codc%TYPE, OUT param varchar(20)) AS $$
+CREATE OR REPLACE FUNCTION checkSubtipo(CLIENTE.codigo%TYPE, varchar(20)) RETURNS varchar AS $$
 DECLARE 
-mycod CLIENTE.codc%TYPE;
-org boolean NOT NULL:=1;
-fecha_act date:=(SELECT CURRENT_DATE)
-fecha_nac date;
+	codc ALIAS FOR $1;
+	param ALIAS FOR $2;
+	mycod CLIENTE.codc%TYPE;
+	--org boolean NOT NULL:=1;
+	fecha_act date:=(SELECT CURRENT_DATE)
+	fecha_nac date;
 BEGIN 
-	SELECT codc INTO mycod FROM ORGANIZACION WHERE codc=mycod;
-	IF NOT FOUND THEN 
-		SELECT codc,fecha_nacimiento INTO STRICT mycod,fecha_nac FROM PERSONA WHERE codc=mycod;
+	SELECT codigo INTO mycod FROM ORGANIZACION WHERE codigo=codc;
+	IF mycod IS NULL THEN 
+		SELECT codigo,fecha_nacimiento INTO STRICT mycod,fecha_nac FROM PERSONA WHERE codigo=codc;
 		IF fecha_act-fecha_nac>23742 --65 años en numero de dias(contando años bisiestos)--
-		THEN param:='p_mayor';
-		ELSE param:='p_menor';
+		THEN 
+			param:='persona mayor';
+		ELSE 
+			param:='persona menor';
 		END IF; 
-
-	ELSE SELECT tipo INTO param FROM ORGANIZACION WHERE codc=mycod;
+	ELSE 
+		SELECT tipo INTO param FROM ORGANIZACION WHERE codigo=codc;
 	END IF; 
+	RETURN param;
 
 EXCEPTION 
 	WHEN NO_DATA_FOUND THEN RAISE NOTICE 'El cliente no existe en la base de datos';
@@ -54,18 +59,26 @@ $$ LANGUAGE plpgsql;
 
 
 -- Actualizar los saldos dependiendo del tipo (y subtipo) de Cliente
-CREATE OR REPLACE FUNCTION actualizar_saldo(curs refcursor, subtipo varchar(20), OUT saldo_ant CUENTA.saldo_medio%TYPE, OUT saldo_nuevo CUENTA.saldo_medio%TYPE)
+CREATE OR REPLACE FUNCTION actualizar_saldo(curs refcursor, subtipo varchar(20), OUT saldo_ant CUENTA.saldo_actual%TYPE, OUT saldo_nuevo CUENTA.saldo_actual%TYPE)
 RETURNS RECORD AS $$
+DECLARE 
+	mi_record RECORD;
 BEGIN
+FETCH curs INTO mi_record;
+SELECT saldo_actual INTO saldo_ant FROM CUENTA WHERE codigo = mi_record.codigo; 
     CASE subtipo
-        WHEN 'p_menor' THEN
-            RAISE NOTICE 'Persona Menor de 65 años';
-        WHEN 'p_mayor' THEN
+        WHEN 'persona menor' THEN
+            RAISE NOTICE 'Persona Menor de 65 años'; 
+			SELECT 1.08*saldo_ant INTO saldo_nuevo;
+        WHEN 'persona mayor' THEN
             RAISE NOTICE 'Persona Mayor de 65 años';
-        WHEN 'o_pyme' THEN
+			SELECT 1.1*saldo_ant INTO saldo_nuevo;
+        WHEN 'PYME' THEN
             RAISE NOTICE 'Organización PYME';
-        WHEN 'o_gran' THEN
+			SELECT 1.15*saldo_ant INTO saldo_nuevo;
+        WHEN 'Gran empresa' THEN
             RAISE NOTICE 'Organización Gran Empresa';
+			SELECT 1.2*saldo_ant INTO saldo_nuevo;
 END
 $$ LANGUAGE plpgsql;
 
