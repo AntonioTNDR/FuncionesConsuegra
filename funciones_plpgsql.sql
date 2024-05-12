@@ -28,29 +28,22 @@ RETURN;
 END $$ LANGUAGE plpgsql;
 
 
-
-CREATE OR REPLACE FUNCTION checkSubtipo(CLIENTE.codigo%TYPE, varchar(20)) RETURNS varchar AS $$
+CREATE OR REPLACE FUNCTION checksubtipo(codc_arg CLIENTE.codc%TYPE, OUT param varchar(20)) AS $$
 DECLARE 
-	codc ALIAS FOR $1;
-	param ALIAS FOR $2;
-	mycod CLIENTE.codc%TYPE;
-	--org boolean NOT NULL:=1;
-	fecha_act date:=(SELECT CURRENT_DATE)
-	fecha_nac date;
+mycod CLIENTE.codc%TYPE;
+fecha_act date:=(SELECT CURRENT_DATE)
+fecha_nac date;
 BEGIN 
-	SELECT codigo INTO mycod FROM ORGANIZACION WHERE codigo=codc;
-	IF mycod IS NULL THEN 
-		SELECT codigo,fecha_nacimiento INTO STRICT mycod,fecha_nac FROM PERSONA WHERE codigo=codc;
+	SELECT codc INTO mycod FROM ORGANIZACION WHERE codc=codc_arg;
+	IF NOT FOUND THEN 
+		SELECT codc,fecha_nacimiento INTO STRICT mycod,fecha_nac FROM PERSONA WHERE codc=codc_arg;
 		IF fecha_act-fecha_nac>23742 --65 años en numero de dias(contando años bisiestos)--
-		THEN 
-			param:='persona mayor';
-		ELSE 
-			param:='persona menor';
+		THEN param:='p_mayor';
+		ELSE param:='p_menor';
 		END IF; 
-	ELSE 
-		SELECT tipo INTO param FROM ORGANIZACION WHERE codigo=codc;
+
+	ELSE SELECT tipo INTO param FROM ORGANIZACION WHERE codc=mycod;
 	END IF; 
-	RETURN param;
 
 EXCEPTION 
 	WHEN NO_DATA_FOUND THEN RAISE NOTICE 'El cliente no existe en la base de datos';
