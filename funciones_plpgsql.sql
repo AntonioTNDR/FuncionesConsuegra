@@ -16,7 +16,7 @@ saldo_nuev CUENTA.saldo_medio%TYPE;
 version varchar(20);
 recf1 record;
 BEGIN
-	FOR rec1 IN cursus LOOP 
+	FOR rec1 IN cursuc LOOP 
 		FOR rec2 IN curcli(rec1.su_id) LOOP
 			version:=checksubtipo(rec2.codc); 
 			recf1:=actualizar(curcli,version); --Devuelva el saldo anterior y el saldo actualizado y usa la iteracion del cursor para actualizar la cuenta dependiendo de version 
