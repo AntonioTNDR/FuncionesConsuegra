@@ -7,24 +7,25 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
      - Antonio Tendero Beltrán
 */
 
-CREATE OR REPLACE FUNCTION control() RETURNS SETOF TEXT AS $$ 
+CREATE OR REPLACE FUNCTION control() RETURNS TABLE(su_id SUCURSAL.su_id%TYPE, cliente CUENTA.codc%TYPE,tipo_cliente varchar(20),saldo_anterior CUENTA.saldo_medio%TYPE,saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
 DECLARE
 cursuc CURSOR FOR SELECT su_id FROM SUCURSAL;
 curcli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codc FROM CUENTA WHERE su_id=su_par;
-orgx boolean;
+saldo_ante CUENTA.saldo_medio%TYPE;
+saldo_nuev CUENTA.saldo_medio%TYPE;
 version varchar(20);
 recf1 record;
-fila text;
 BEGIN
 	FOR rec1 IN cursus LOOP 
 		FOR rec2 IN curcli(rec1.su_id) LOOP
-			version:=checkSubtipo(rec2.codc); 
-			recf1:=actualizar_saldo(rec2,version); --Devuelva el saldo anterior y el saldo actualizado y usa la iteracion del cursor para actualizar la cuenta dependiendo de version 
-			fila:='Sucursal:'||rec1.su_id||', cliente:' || rec2.codc ||', saldo anterior:'|| recf1.saldo_ant ||', saldo nuevo:'||recf1.saldo_nuevo; 
-			RETURN NEXT fila;
+			version:=checksubtipo(rec2.codc); 
+			recf1:=actualizar(curcli,version); --Devuelva el saldo anterior y el saldo actualizado y usa la iteracion del cursor para actualizar la cuenta dependiendo de version 
+			saldo_ante:=(SELECT saldo_ant FROM recf1);
+			saldo_nuev:=(SELECT saldo_nuevo FROM recf1);
+			RETURN QUERY SELECT rec1.su_id,rec2.codc,version,saldo_ante,saldo_nuev;
 		END LOOP;
 	END LOOP;
-RETURN;
+	RETURN;
 END $$ LANGUAGE plpgsql;
 
 
