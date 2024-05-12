@@ -63,16 +63,16 @@ SELECT saldo_actual INTO saldo_ant FROM CUENTA WHERE codigo = mi_record.codigo;
     CASE subtipo
         WHEN 'persona menor' THEN
             RAISE NOTICE 'Persona Menor de 65 años'; 
-			SELECT 1.08*saldo_ant INTO saldo_nuevo;
+			SELECT 1.08*saldo_ant INTO saldo_nuevo; --bono del 8% para las personas de 65 años o menos
         WHEN 'persona mayor' THEN
             RAISE NOTICE 'Persona Mayor de 65 años';
-			SELECT 1.1*saldo_ant INTO saldo_nuevo;
+			SELECT 1.1*saldo_ant INTO saldo_nuevo; --bono del 10% para las personas de más de 65 años
         WHEN 'PYME' THEN
             RAISE NOTICE 'Organización PYME';
-			SELECT 1.15*saldo_ant INTO saldo_nuevo;
+			SELECT 1.15*saldo_ant INTO saldo_nuevo; --bono del 15% para las pymes
         WHEN 'Gran empresa' THEN
             RAISE NOTICE 'Organización Gran Empresa';
-			SELECT 1.2*saldo_ant INTO saldo_nuevo;
+			SELECT 1.2*saldo_ant INTO saldo_nuevo; --bono del 20% para las grandes empresas
 END
 $$ LANGUAGE plpgsql;
 
