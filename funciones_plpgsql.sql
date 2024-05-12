@@ -28,11 +28,12 @@ RETURN;
 END $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION checksubtipo(codc_arg CLIENTE.codc%TYPE, OUT param varchar(20)) AS $$
+CREATE OR REPLACE FUNCTION checksubtipo(codc_arg CLIENTE.codc%TYPE) RETURNS varchar AS $$
 DECLARE 
 mycod CLIENTE.codc%TYPE;
 fecha_act date:=(SELECT CURRENT_DATE)
 fecha_nac date;
+param varchar(20);
 BEGIN 
 	SELECT codc INTO mycod FROM ORGANIZACION WHERE codc=codc_arg;
 	IF NOT FOUND THEN 
@@ -44,7 +45,7 @@ BEGIN
 
 	ELSE SELECT tipo INTO param FROM ORGANIZACION WHERE codc=mycod;
 	END IF; 
-
+RETURN param;
 EXCEPTION 
 	WHEN NO_DATA_FOUND THEN RAISE NOTICE 'El cliente no existe en la base de datos';
 END 
