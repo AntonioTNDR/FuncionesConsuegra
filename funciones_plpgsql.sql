@@ -5,40 +5,21 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
      - Agustín Prieto Páez
      - Jesús Sanz Alonso
      - Antonio Tendero Beltrán
+	 
+El banco va a hacer una actualización de sus políticas sobre los intereses, 
+a las personas mayores de 65 años se les dará una bonificación anual de un 10% de su saldo en la cuenta de ahorros, 
+mientras que a los menores de 65 se les restará un 10% de su saldo en cada una de sus cuentas.
+
+Por otro lado, a las PYMES se les restará un 7% y a las grandes empresas un 5% del total de la cuenta.
+Los directivos del banco quieren automatizar el proceso, quieren que el programa sea capaz de diferenciar los tipos de clientes y hacer las cambios automáticamente.  
+Una vez tengas los tipos, hay que actualizar las cuentas debidamente y mostrar el resultado de los cambios.
+
 */
-
-
---=====================================
---              control
---         FUNCIONA, NO TOCAR
---=====================================
-
-CREATE OR REPLACE FUNCTION control_anual() RETURNS TABLE(sucursal SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_actual%TYPE, saldo_nuevo CUENTA.saldo_actual%TYPE) AS $$ 
-DECLARE
-	curs_suc CURSOR FOR SELECT su_id FROM SUCURSAL;
-	curs_cli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT * FROM CUENTA WHERE su_id = su_par;
-	saldo_old CUENTA.saldo_actual%TYPE;
-	saldo_new CUENTA.saldo_actual%TYPE;
-	subtipo varchar(20);
-BEGIN
-	FOR rec1 IN curs_suc LOOP
-		FOR rec2 IN curs_cli(rec1.su_id) LOOP
-			subtipo := check_subtipo(rec2.codigo);
-			saldo_old := (SELECT rec2.saldo_actual);
-			saldo_new := actualizar_saldo(curs_cli, subtipo);
-			RETURN QUERY SELECT rec1.su_id, rec2.codigo, subtipo, saldo_old, saldo_new;
-		END LOOP;
-	END LOOP;
-	RETURN;
-EXCEPTION
-	WHEN OTHERS THEN RAISE NOTICE 'Ha ocurrido un error inesperado.';
-END
-$$ LANGUAGE plpgsql;
-
-
+INSERT INTO CLIENTE VALUES ('c00007','cliente7','dir7');
+INSERT INTO PERSONA VALUES( 'c00007','hombre','1924-03-03');
+INSERT INTO CUENTA VALUES ('s001','ccabuelo','c00007',1000,100);
 --=====================================
 --           check_subtipo
---         NO TOCAR, FUNCIONA
 --=====================================
 
 DROP FUNCTION check_subtipo;
@@ -69,7 +50,6 @@ $$ LANGUAGE plpgsql;
 
 --=====================================
 --           actualizar_saldo
---          FUNCIONA, NO TOCAR
 --=====================================
 
 -- Actualizar el saldo dependiendo del tipo (y subtipo) del cliente en cuestión
@@ -97,6 +77,33 @@ BEGIN
 			WHERE CURRENT OF curs
 			RETURNING saldo_actual INTO saldo_new;  -- Actualizar el saldo del cliente (-5%)
 	END CASE;
+EXCEPTION
+	WHEN OTHERS THEN RAISE NOTICE 'Ha ocurrido un error inesperado.';
+END
+$$ LANGUAGE plpgsql;
+
+
+--=====================================
+--              control
+--=====================================
+
+CREATE OR REPLACE FUNCTION control_anual() RETURNS TABLE(sucursal SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_actual%TYPE, saldo_nuevo CUENTA.saldo_actual%TYPE) AS $$ 
+DECLARE
+	curs_suc CURSOR FOR SELECT su_id FROM SUCURSAL;
+	curs_cli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT * FROM CUENTA WHERE su_id = su_par;
+	saldo_old CUENTA.saldo_actual%TYPE;
+	saldo_new CUENTA.saldo_actual%TYPE;
+	subtipo varchar(20);
+BEGIN
+	FOR rec1 IN curs_suc LOOP
+		FOR rec2 IN curs_cli(rec1.su_id) LOOP
+			subtipo := check_subtipo(rec2.codigo);
+			saldo_old := (SELECT rec2.saldo_actual);
+			saldo_new := actualizar_saldo(curs_cli, subtipo);
+			RETURN QUERY SELECT rec1.su_id, rec2.codigo, subtipo, saldo_old, saldo_new;
+		END LOOP;
+	END LOOP;
+	RETURN;
 EXCEPTION
 	WHEN OTHERS THEN RAISE NOTICE 'Ha ocurrido un error inesperado.';
 END
