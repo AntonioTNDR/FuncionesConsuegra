@@ -13,12 +13,12 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
 --=====================================
 CREATE OR REPLACE FUNCTION control() RETURNS TABLE(su_id SUCURSAL.su_id%TYPE, cliente CUENTA.codc%TYPE,tipo_cliente varchar(20),saldo_anterior CUENTA.saldo_medio%TYPE,saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
 DECLARE
-cursuc CURSOR FOR SELECT su_id FROM SUCURSAL;
-curcli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codc FROM CUENTA WHERE su_id=su_par;
-saldo_ante CUENTA.saldo_medio%TYPE;
-saldo_nuev CUENTA.saldo_medio%TYPE;
-version varchar(20);
-recf1 record;
+	cursuc CURSOR FOR SELECT su_id FROM SUCURSAL;
+	curcli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codc FROM CUENTA WHERE su_id=su_par;
+	saldo_ante CUENTA.saldo_medio%TYPE;
+	saldo_nuev CUENTA.saldo_medio%TYPE;
+	version varchar(20);
+	recf1 record;
 BEGIN
 	FOR rec1 IN cursus LOOP 
 		FOR rec2 IN curcli(rec1.su_id) LOOP
