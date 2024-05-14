@@ -85,5 +85,6 @@ BEGIN
             UPDATE CUENTA SET saldo_actual = saldo_actual*0.95
             WHERE CURRENT OF curs
             RETURNING saldo_actual INTO saldo_new;  -- Actualizar el saldo del cliente (-5%)
+    END CASE;
 END
 $$ LANGUAGE plpgsql;
