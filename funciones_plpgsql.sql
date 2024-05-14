@@ -11,21 +11,21 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
 --=====================================
 --				control
 --=====================================
-DROP FUNCTION control;
-CREATE OR REPLACE FUNCTION control() RETURNS TABLE(su_id_ SUCURSAL.su_id%TYPE, cliente_ CUENTA.codigo%TYPE,tipo_cliente_ varchar(20),saldo_anterior CUENTA.saldo_actual%TYPE,saldo_nuevo_ CUENTA.saldo_actual%TYPE) AS $$ 
+CREATE OR REPLACE FUNCTION control() RETURNS TABLE(su_id SUCURSAL.su_id%TYPE, cliente CUENTA.codc%TYPE,tipo_cliente varchar(20),saldo_anterior CUENTA.saldo_medio%TYPE,saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
 DECLARE
 cursuc CURSOR FOR SELECT su_id FROM SUCURSAL;
-curcli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codigo FROM CUENTA WHERE su_id=su_par;
-saldo_ante CUENTA.saldo_actual%TYPE;
-saldo_nuev CUENTA.saldo_actual%TYPE;
+curcli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codc FROM CUENTA WHERE su_id=su_par;
+saldo_ante CUENTA.saldo_medio%TYPE;
+saldo_nuev CUENTA.saldo_medio%TYPE;
 version varchar(20);
+recf1 record;
 BEGIN
-	FOR rec1 IN cursuc LOOP 
+	FOR rec1 IN cursus LOOP 
 		FOR rec2 IN curcli(rec1.su_id) LOOP
-			version:=checkSubtipo(rec2.codigo); 
-			saldo_ante:=(SELECT rec2.saldo_actual);
-			saldo_nuev:=actualizar_saldo(rec2,version);
-			RETURN QUERY SELECT rec1.su_id,rec2.codigo,version,saldo_ante,saldo_nuev;
+			version:=isorg(rec2.codc); 
+			saldo_ante:=(SELECT rec2.saldo_medio);
+			saldo_nuev:=actualizar_saldo(curcli,version);
+			RETURN QUERY SELECT rec1.su_id,rec2.codc,version,saldo_ante,saldo_nuev;
 		END LOOP;
 	END LOOP;
 	RETURN;
