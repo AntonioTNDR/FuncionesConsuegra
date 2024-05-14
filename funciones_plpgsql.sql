@@ -33,6 +33,7 @@ END $$ LANGUAGE plpgsql;
 
 --=====================================
 --				checkSubtipo
+--				NO TOCAR, FUNCIONA
 --=====================================
 DROP FUNCTION checkSubtipo;
 CREATE OR REPLACE FUNCTION checkSubtipo(codc_arg CLIENTE.codigo%TYPE) RETURNS varchar AS $$
