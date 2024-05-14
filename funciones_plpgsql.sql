@@ -11,7 +11,7 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
 --=====================================
 --				control
 --=====================================
-CREATE OR REPLACE FUNCTION control() RETURNS TABLE(su_id SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_medio%TYPE, saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
+CREATE OR REPLACE FUNCTION control() RETURNS TABLE(sucursal SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_medio%TYPE, saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
 DECLARE
 	curs_suc CURSOR FOR SELECT su_id FROM SUCURSAL;
 	curs_cli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codigo FROM CUENTA WHERE su_id = su_par;
