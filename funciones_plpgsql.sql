@@ -62,41 +62,29 @@ $$ LANGUAGE plpgsql;
 --=====================================
 --				actualizar_saldo
 --=====================================
--- Actualizar los saldos dependiendo del tipo (y subtipo) de Cliente
-DROP FUNCTION actualizar_saldo;
-CREATE OR REPLACE FUNCTION actualizar_saldo(mi_record RECORD, subtipo varchar(20), OUT saldo_ant CUENTA.saldo_actual%TYPE, OUT saldo_nuevo CUENTA.saldo_actual%TYPE) RETURNS RECORD AS 
-$$
-DECLARE 
-	--mi_record RECORD;
+-- Actualizar el saldo dependiendo del tipo (y subtipo) del cliente en cuestión
+CREATE OR REPLACE FUNCTION actualizar_saldo(curs REFCURSOR, subtipo varchar(20), saldo_new OUT CUENTA.saldo_actual%type) $$
 BEGIN
-	--FETCH curs INTO mi_record; 
-	--RAISE NOTICE '%, %, %',mi_record.codigo,mi_record.saldo_actual;
-	SELECT saldo_actual INTO saldo_ant FROM CUENTA WHERE codigo = mi_record.codigo;
-	RAISE NOTICE '%',saldo_ant;
-	RAISE NOTICE '%',
-		CASE subtipo 
-			WHEN 'p_menor' THEN 
-				'Persona Menor de 65 años'
-			WHEN 'p_mayor' THEN 
-				'Persona Mayor de 65 años'
-			WHEN 'PYME' THEN 
-				'Organización PYME'
-			WHEN 'Gran empresa' THEN 
-				'Organización Gran Empresa'
-		END
-	;
-	
-	SELECT 
-		CASE subtipo 
-			WHEN 'p_menor' THEN 
-				1.08 --bono del 8% para las personas de 65 años o menos
-			WHEN 'p_mayor' THEN 
-				1.1 --bono del 10% para las personas de más de 65 años
-			WHEN 'PYME' THEN 
-				1.15 --bono del 15% para las pymes
-			WHEN 'Gran empresa' THEN 
-				1.2 --bono del 20% para las grandes empresas
-		END
-	*saldo_ant INTO saldo_nuevo;
+    CASE subtipo
+        WHEN 'p_menor' THEN
+            RAISE NOTICE 'Persona Menor de 65 años';
+            UPDATE CUENTA SET saldo_actual = saldo_actual*0.9
+            WHERE CURRENT OF curs
+            RETURNING saldo_actual INTO saldo_new;  -- Actualizar el saldo del cliente (-10%)
+        WHEN 'p_mayor' THEN
+            RAISE NOTICE 'Persona Mayor de 65 años';
+            UPDATE CUENTA SET saldo_actual = saldo_actual*1.25
+            WHERE CURRENT OF curs
+            RETURNING saldo_actual INTO saldo_new;  -- Actualizar el saldo del cliente (+25%)
+        WHEN 'PYME' THEN
+            RAISE NOTICE 'Organización PYME';
+            UPDATE CUENTA SET saldo_actual = saldo_actual*0.85
+            WHERE CURRENT OF curs
+            RETURNING saldo_actual INTO saldo_new;  -- Actualizar el saldo del cliente (-15%)
+        WHEN 'Gran empresa' THEN
+            RAISE NOTICE 'Organización Gran Empresa';
+            UPDATE CUENTA SET saldo_actual = saldo_actual*0.95
+            WHERE CURRENT OF curs
+            RETURNING saldo_actual INTO saldo_new;  -- Actualizar el saldo del cliente (-5%)
 END
-$$ LANGUAGE PLPGSQL;
+$$ LANGUAGE plpgsql;
