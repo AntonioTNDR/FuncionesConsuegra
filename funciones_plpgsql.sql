@@ -11,18 +11,18 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
 --=====================================
 --				control
 --=====================================
-CREATE OR REPLACE FUNCTION control() RETURNS TABLE(sucursal SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_medio%TYPE, saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
+CREATE OR REPLACE FUNCTION control() RETURNS TABLE(sucursal SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_actual%TYPE, saldo_nuevo CUENTA.saldo_actual%TYPE) AS $$ 
 DECLARE
 	curs_suc CURSOR FOR SELECT su_id FROM SUCURSAL;
-	curs_cli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codigo FROM CUENTA WHERE su_id = su_par;
-	saldo_old CUENTA.saldo_medio%TYPE;
-	saldo_new CUENTA.saldo_medio%TYPE;
+	curs_cli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT * FROM CUENTA WHERE su_id = su_par;
+	saldo_old CUENTA.saldo_actual%TYPE;
+	saldo_new CUENTA.saldo_actual%TYPE;
 	subtipo varchar(20);
 BEGIN
 	FOR rec1 IN curs_suc LOOP
 		FOR rec2 IN curs_cli(rec1.su_id) LOOP
 			subtipo := checkSubtipo(rec2.codigo);
-			saldo_old := (SELECT rec2.saldo_medio);
+			saldo_old := (SELECT rec2.saldo_actual);
 			saldo_new := actualizar_saldo(curs_cli, subtipo);
 			RETURN QUERY SELECT rec1.su_id, rec2.codigo, subtipo, saldo_old, saldo_new;
 		END LOOP;
