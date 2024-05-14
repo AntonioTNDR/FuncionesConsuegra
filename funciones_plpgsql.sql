@@ -11,7 +11,7 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
 --=====================================
 --				control
 --=====================================
-CREATE OR REPLACE FUNCTION control() RETURNS TABLE(su_id SUCURSAL.su_id%TYPE, cliente CUENTA.codc%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_medio%TYPE, saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
+CREATE OR REPLACE FUNCTION control() RETURNS TABLE(su_id SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_medio%TYPE, saldo_nuevo CUENTA.saldo_medio%TYPE) AS $$ 
 DECLARE
 	curs_suc CURSOR FOR SELECT su_id FROM SUCURSAL;
 	curs_cli CURSOR(su_par SUCURSAL.su_id%TYPE) FOR SELECT codc FROM CUENTA WHERE su_id = su_par;
@@ -24,7 +24,7 @@ BEGIN
 			subtipo := checkSubtipo(rec2.codc);
 			saldo_old := (SELECT rec2.saldo_medio);
 			saldo_new := actualizar_saldo(curs_cli, subtipo);
-			RETURN QUERY SELECT rec1.su_id, rec2.codc, subtipo, saldo_old, saldo_new;
+			RETURN QUERY SELECT rec1.su_id, rec2.codigo, subtipo, saldo_old, saldo_new;
 		END LOOP;
 	END LOOP;
 	RETURN;
