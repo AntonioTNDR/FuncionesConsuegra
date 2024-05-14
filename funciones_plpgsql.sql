@@ -10,6 +10,7 @@ SCRIPT DE CREACIÓN DE FUNCIONES ""TENTATIVAS"" DE LA BASE DE DATOS DEL BANCO
 
 --=====================================
 --				control
+--				FUNCIONA, NO TOCAR
 --=====================================
 CREATE OR REPLACE FUNCTION control() RETURNS TABLE(sucursal SUCURSAL.su_id%TYPE, cliente CUENTA.codigo%TYPE, tipo_cliente varchar(20), saldo_anterior CUENTA.saldo_actual%TYPE, saldo_nuevo CUENTA.saldo_actual%TYPE) AS $$ 
 DECLARE
@@ -60,6 +61,7 @@ $$ LANGUAGE plpgsql;
 
 --=====================================
 --				actualizar_saldo
+--				FUNCIONA, NO TOCAR
 --=====================================
 -- Actualizar el saldo dependiendo del tipo (y subtipo) del cliente en cuestión
 CREATE OR REPLACE FUNCTION actualizar_saldo(curs REFCURSOR, subtipo varchar(20), saldo_new OUT CUENTA.saldo_actual%type) AS $$
