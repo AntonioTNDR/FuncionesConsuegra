@@ -1,6 +1,6 @@
 # FuncionesConsuegra
 ENUNCIADO
-# El frente popular de Judea quiere ganar votos para las próximas elecciones. Nos ha encargado que entreguemos a los ciudadanos mayores de 65 años una remuneración por todos los malos gobiernos que han pasado. Asimismo, hemos de premiar a las PYMES y grandes empresas con bonos del 15% y 20% respectivamente. De esta forma, el frente popular de Judea se aseguraría las próximas elecciones al contar con este estrepitoso incentivo.
+# El banco va a hacer una actualización de sus políticas sobre los intereses, a los mayores de 65 años se les dará una bonificación anual de un 10% de su saldo en la cuenta de ahorros. A los clientes clientes normales se les restará un 10% de su saldo en la cuenta de ahorros. A las PYMES se les restará un 7% y a las grandes empresas un 5% del total de la cuenta.
 # LUEGO PONEMOS EL LORE
 El programa actualiza los saldos de los clientes dependiendo si son personas (diferenciando los >65 años) u organizaciones (PYMES, grandes empresas).
 Dependiendo de su condición, se actualizan los saldos correspondientemente.
