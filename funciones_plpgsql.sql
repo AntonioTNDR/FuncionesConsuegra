@@ -62,7 +62,7 @@ $$ LANGUAGE plpgsql;
 --				actualizar_saldo
 --=====================================
 -- Actualizar el saldo dependiendo del tipo (y subtipo) del cliente en cuestión
-CREATE OR REPLACE FUNCTION actualizar_saldo(curs REFCURSOR, subtipo varchar(20), saldo_new OUT CUENTA.saldo_actual%type) $$
+CREATE OR REPLACE FUNCTION actualizar_saldo(curs REFCURSOR, subtipo varchar(20), saldo_new OUT CUENTA.saldo_actual%type) AS $$
 BEGIN
     CASE subtipo
         WHEN 'p_menor' THEN
